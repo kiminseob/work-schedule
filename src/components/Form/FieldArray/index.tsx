@@ -1,4 +1,4 @@
-import { useCalendarEvent } from "@/components/hooks/useCalendarEvent";
+import { useCalendarEvent } from "@/hooks/useCalendarEvent";
 import { CalendarEventForm } from "@/constants/calendarEvent";
 import { AddCircleOutline, DeleteOutline } from "@mui/icons-material";
 import { Box, Button, FormHelperText, Input } from "@mui/material";

@@ -18,8 +18,8 @@ import { useContext, type KeyboardEvent } from "react";
 import { CalendarContext } from "@/components/WorkCalendar";
 import { DeleteOutline } from "@mui/icons-material";
 import { validator } from "@/validator";
-import { useCalendarEvent } from "@/components/hooks/useCalendarEvent";
-import { transformToDate } from "@/components/utils/parse";
+import { useCalendarEvent } from "@/hooks/useCalendarEvent";
+import { transformToDate } from "@/utils/parse";
 
 export const WorkerList = () => {
   const { date } = useContext(CalendarContext);

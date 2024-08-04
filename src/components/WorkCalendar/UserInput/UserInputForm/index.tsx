@@ -1,5 +1,5 @@
 import { FieldArray } from "@/components/Form";
-import { useCalendarEvent } from "@/components/hooks/useCalendarEvent";
+import { useCalendarEvent } from "@/hooks/useCalendarEvent";
 import {
   CalendarEventForm,
   defaultValuesForm,
