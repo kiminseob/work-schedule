@@ -6,6 +6,11 @@ export type CalendarEventStorage = {
 export type CalendarEventForm = {
   workers: { value: string }[];
   vacations: { value: string }[];
+  workTimes: {
+    time: string;
+    numOfWorkers: number;
+    max?: number;
+  }[];
 };
 
 export const defaultValuesStorage: CalendarEventStorage = {
@@ -16,4 +21,5 @@ export const defaultValuesStorage: CalendarEventStorage = {
 export const defaultValuesForm: CalendarEventForm = {
   workers: [],
   vacations: [],
+  workTimes: [],
 };

@@ -1,4 +1,4 @@
-import { FieldArray } from "@/components/Form";
+import { Workers, WorkTime } from "@/components/Form";
 import { useCalendarEvent } from "@/hooks/useCalendarEvent";
 import {
   CalendarEventForm,
@@ -10,13 +10,16 @@ import {
   Button,
   Dialog,
   DialogActions,
+  DialogTitle,
   Paper,
   Typography,
 } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import { useBoolean } from "usehooks-ts";
+import { useState } from "react";
 
 export const UserInputForm = () => {
+  const [selectedField, setSelectedField] = useState<keyof CalendarEventForm>();
   const { addEvent } = useCalendarEvent();
   const form = useForm<CalendarEventForm>({
     defaultValues: defaultValuesForm,
@@ -28,7 +31,7 @@ export const UserInputForm = () => {
     setFalse: closeDialog,
   } = useBoolean();
 
-  const saveWorkers = (formValue: CalendarEventForm) => {
+  const save = (formValue: CalendarEventForm) => {
     const workers = formValue.workers.map(({ value }) => value);
     addEvent("workers", workers);
     reset();
@@ -40,25 +43,45 @@ export const UserInputForm = () => {
     closeDialog();
   };
 
+  const openCreateForm = (field: keyof CalendarEventForm) => {
+    setSelectedField(field);
+    openDialog();
+  };
+
   return (
     <Paper elevation={3}>
-      <Box padding={2}>
-        <FormProvider {...form}>
+      <FormProvider {...form}>
+        <Box padding={2} display="flex">
           <Box display="flex" alignItems="center">
             <Typography>근무자</Typography>
-            <Button startIcon={<AddCircleOutline />} onClick={openDialog} />
+            <Button
+              startIcon={<AddCircleOutline />}
+              onClick={openCreateForm.bind(null, "workers")}
+            />
+          </Box>
+          <Box display="flex" alignItems="center">
+            <Typography>당직 시간</Typography>
+            <Button
+              startIcon={<AddCircleOutline />}
+              onClick={openCreateForm.bind(null, "workTimes")}
+            />
           </Box>
           <Dialog open={isOpen}>
-            <form onSubmit={handleSubmit(saveWorkers)}>
-              <FieldArray />
+            <form onSubmit={handleSubmit(save)}>
+              <DialogTitle>
+                {selectedField === "workers" && "근무자 추가"}
+                {selectedField === "workTimes" && "당직 시간 추가"}
+              </DialogTitle>
+              {selectedField === "workers" && <Workers />}
+              {selectedField === "workTimes" && <WorkTime />}
               <DialogActions>
                 <Button onClick={cancel}>취소</Button>
                 <Button type="submit">저장</Button>
               </DialogActions>
             </form>
           </Dialog>
-        </FormProvider>
-      </Box>
+        </Box>
+      </FormProvider>
     </Paper>
   );
 };
