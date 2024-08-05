@@ -1,29 +1,43 @@
-import { Dayjs } from 'dayjs';
+import { Dayjs } from "dayjs";
 
 export type CalendarEventStorage = {
-	workers: string[];
-	vacations: Record<string, string[]>;
+  workers: string[];
+  vacations: Record<string, string[]>;
+  workTimes: {
+    startTime: string;
+    endTime: string;
+    alias: string;
+    numOfWorkers: number;
+    max: number;
+  }[];
 };
 
 export type CalendarEventForm = {
-	workers: { value: string }[];
-	vacations: { value: string }[];
-	workTimes: {
-		startTime: Dayjs | null;
-		endTime: Dayjs | null;
-		alias: string;
-		numOfWorkers: number;
-		max?: number;
-	};
+  workers: { value: string }[];
+  vacations: { value: string }[];
+  workTimes: {
+    startTime: Dayjs | null;
+    endTime: Dayjs | null;
+    alias: string;
+    numOfWorkers: number;
+    max: number;
+  };
 };
 
 export const defaultValuesStorage: CalendarEventStorage = {
-	workers: [],
-	vacations: {},
+  workers: [],
+  vacations: {},
+  workTimes: [],
 };
 
 export const defaultValuesForm: CalendarEventForm = {
-	workers: [],
-	vacations: [],
-	workTimes: { startTime: null, endTime: null, alias: '', numOfWorkers: 1 },
+  workers: [],
+  vacations: [],
+  workTimes: {
+    startTime: null,
+    endTime: null,
+    alias: "",
+    numOfWorkers: 1,
+    max: 0,
+  },
 };

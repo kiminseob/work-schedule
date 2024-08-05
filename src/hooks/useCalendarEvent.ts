@@ -4,7 +4,6 @@ import {
 } from "@/constants/calendarEvent";
 import { useLocalStorage } from "usehooks-ts";
 import { sortDateAscend } from "../utils/sort";
-import { isArray, isObject } from "../utils/type";
 
 export const useCalendarEvent = () => {
   const [calendarEvent, setCalendarEvent] =
@@ -19,33 +18,38 @@ export const useCalendarEvent = () => {
     key?: string
   ) => {
     setCalendarEvent((prev) => {
-      const prevField = prev[field];
-
-      if (isArray(prevField)) {
-        const _prevField = prevField ?? [];
+      if (field === "workTimes") {
+        const prevField = prev[field] ?? [];
         return {
           ...prev,
-          [field]: [..._prevField, ...value],
+          [field]: [...prevField, value],
         };
-      } else if (isObject(prevField) && key) {
-        const _prevField = prevField ?? {};
+      }
+
+      if (field === "workers") {
+        const prevField = prev[field] ?? [];
+        return {
+          ...prev,
+          [field]: [...prevField, ...value],
+        };
+      }
+
+      if (field === "vacations" && key) {
+        const prevField = prev[field] ?? {};
         const newField = sortDateAscend([
-          ...new Set([...(_prevField[key] ?? []), ...value]),
+          ...new Set([...(prevField[key] ?? []), ...value]),
         ]);
 
         return {
           ...prev,
           [field]: {
-            ..._prevField,
+            ...prevField,
             [key]: newField,
           },
         };
-      } else {
-        return {
-          ...prev,
-          [field]: value,
-        };
       }
+
+      return prev;
     });
   };
 
@@ -60,12 +64,24 @@ export const useCalendarEvent = () => {
     option?: { deleteTargetValue: string }
   ) => {
     setCalendarEvent((prev) => {
-      const prevField = prev[field];
-
-      if (isArray(prevField)) {
-        const newField = prevField.filter((prevField) => prevField !== target);
+      if (field === "workTimes") {
+        const prevField = prev[field];
+        const newField = prevField.filter(
+          (_prevField) => _prevField.alias !== target
+        );
         return { ...prev, [field]: newField };
-      } else if (isObject(prevField)) {
+      }
+
+      if (field === "workers") {
+        const prevField = prev[field];
+        const newField = prevField.filter(
+          (_prevField) => _prevField !== target
+        );
+        return { ...prev, [field]: newField };
+      }
+
+      if (field === "vacations") {
+        const prevField = prev[field];
         const newField = Object.keys(prevField).reduce((acc, key) => {
           if (key === target) {
             if (option?.deleteTargetValue) {
@@ -89,16 +105,9 @@ export const useCalendarEvent = () => {
         }, {});
 
         return { ...prev, [field]: newField };
-      } else {
-        const newField = Object.keys(prev).reduce((acc, key) => {
-          if (key === field) {
-            return acc;
-          }
-          return { ...acc, [key]: prev[key as keyof CalendarEventStorage] };
-        }, defaultValuesStorage);
-
-        return newField;
       }
+
+      return prev;
     });
   };
 
