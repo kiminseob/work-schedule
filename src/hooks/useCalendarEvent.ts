@@ -85,9 +85,25 @@ export const useCalendarEvent = () => {
         const newField = Object.keys(prevField).reduce((acc, key) => {
           if (key === target) {
             if (option?.deleteTargetValue) {
-              const newFieldValue = prevField[key].filter(
-                (v) => v !== option.deleteTargetValue
-              );
+              const newFieldValue = prevField[key].filter((_prevField) => {
+                const [y, m, d] = _prevField.split("-");
+
+                if (option.deleteTargetValue.includes("~")) {
+                  const [start, end] = option.deleteTargetValue.split("~");
+                  const [groupY, groupM, startD] = start.trim().split("-");
+                  const [, , endD] = end.trim().split("-");
+
+                  if (y === groupY && m === groupM) {
+                    return !(
+                      Number(d) >= Number(startD) && Number(d) <= Number(endD)
+                    );
+                  } else {
+                    return true;
+                  }
+                } else {
+                  return _prevField !== option.deleteTargetValue;
+                }
+              });
 
               return !newFieldValue.length
                 ? acc

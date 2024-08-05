@@ -10,6 +10,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import React from "react";
 
 export const WorkTimeList = () => {
   const { calendarEvent, deleteEvent } = useCalendarEvent();
@@ -27,11 +28,13 @@ export const WorkTimeList = () => {
           <Box display="flex" gap={2} flexWrap="wrap">
             <Table>
               <TableHead>
-                <TableCell />
-                <TableCell>당직 시간</TableCell>
-                <TableCell>당직 인원수</TableCell>
-                <TableCell>인당 최대 배정수</TableCell>
-                <TableCell />
+                <TableRow>
+                  <TableCell />
+                  <TableCell>당직 시간</TableCell>
+                  <TableCell>당직 인원수</TableCell>
+                  <TableCell>인당 최대 배정수</TableCell>
+                  <TableCell />
+                </TableRow>
               </TableHead>
               <TableBody>
                 {calendarEvent.workTimes.map((workTime) => {
@@ -41,7 +44,7 @@ export const WorkTimeList = () => {
                   const endTime = em === "0" ? `${eh}시` : `${eh}시 ${em}분`;
 
                   return (
-                    <>
+                    <React.Fragment key={workTime.alias}>
                       <TableRow>
                         <TableCell>{workTime.alias}</TableCell>
                         <TableCell>
@@ -59,7 +62,7 @@ export const WorkTimeList = () => {
                           </IconButton>
                         </TableCell>
                       </TableRow>
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </TableBody>
