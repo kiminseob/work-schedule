@@ -6,6 +6,8 @@ import {
   FormHelperText,
   IconButton,
   Input,
+  Snackbar,
+  SnackbarCloseReason,
   Typography,
 } from "@mui/material";
 import FaceIcon from "@mui/icons-material/Face";
@@ -14,7 +16,7 @@ import {
   defaultValuesForm,
 } from "@/constants/calendarEvent";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useContext, type KeyboardEvent } from "react";
+import { useContext, type KeyboardEvent, useState } from "react";
 import { CalendarContext } from "@/components/WorkCalendar";
 import { DeleteOutline } from "@mui/icons-material";
 import { validator } from "@/validator";
@@ -36,16 +38,34 @@ export const WorkerList = () => {
     mode: "all",
     defaultValues: { vacations: defaultValuesForm.vacations },
   });
+  const [isOpenSnacbar, setOpenSnacbar] = useState(false);
 
   useFieldArray({
     control,
     name: "vacations",
   });
 
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnacbar(false);
+  };
+
   const deleteWorker = (worker: string) => () => {
+    const isRefValue =
+      calendarEvent.workTimes.filter((v) => v.outsider.includes(worker))
+        .length > 0;
+    if (isRefValue) {
+      setOpenSnacbar(true);
+      return;
+    }
     deleteEvent("workers", worker);
     deleteEvent("vacations", worker);
-    reset();
   };
 
   const saveVacations = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -65,63 +85,82 @@ export const WorkerList = () => {
       transformToDate(value, date)
     )[0];
 
-    addEvent("vacations", transformedVacations, worker);
+    addEvent("vacations", transformedVacations, { key: worker });
 
     if (!errors?.vacations) reset();
   };
 
   return (
-    <form onSubmit={handleSubmit(() => {})}>
-      <Box display="flex" flexDirection="column" gap={2}>
-        {calendarEvent.workers.length > 0 && (
-          <Typography>근무자 리스트</Typography>
-        )}
-        <Box display="flex" gap={2} flexWrap="wrap">
-          {calendarEvent.workers.map((worker, idx) => (
-            <Box key={worker} minWidth={300} flexGrow={1} flexBasis={0}>
-              <Card sx={{ padding: 1 }}>
-                <Box display="flex" justifyContent="space-between">
-                  <Chip icon={<FaceIcon />} label={worker} variant="outlined" />
-                  <IconButton onClick={deleteWorker(worker)}>
-                    <DeleteOutline />
-                  </IconButton>
-                </Box>
-                <Box>
-                  <Input
-                    {...register(`vacations.${idx}.value`, {
-                      validate: (value) => {
-                        if (!value) return true;
-                        const isValid = validator.vacations.validate(
-                          date,
-                          value
-                        );
-                        return isValid ? isValid : validator.vacations.message;
-                      },
-                    })}
-                    defaultValue=""
-                    placeholder={`${
-                      date.getMonth() + 1
-                    }월 휴가 입력 후 엔터 (ex. 1, 3-6)`}
-                    onKeyDown={saveVacations}
-                    id={worker}
-                    fullWidth
-                    error={!!errors?.vacations?.[idx]}
-                  />
-                  {!!errors?.vacations?.[idx] && (
-                    <FormHelperText>
-                      {errors?.vacations?.[idx]?.value?.message}
-                    </FormHelperText>
-                  )}
-                </Box>
-                <Box marginTop={1} gap={0.1} display="flex" flexWrap="wrap">
-                  <VacationList worker={worker} />
-                </Box>
-              </Card>
+    <>
+      <form onSubmit={handleSubmit(() => {})}>
+        <Box display="flex" flexDirection="column" gap={2}>
+          {calendarEvent.workers.length > 0 && (
+            <Box display="flex" gap={1}>
+              <Typography>근무자</Typography>
+              <Typography color="forestgreen" fontWeight={600}>
+                {calendarEvent.workers.length}
+              </Typography>
             </Box>
-          ))}
+          )}
+          <Box display="flex" gap={2} flexWrap="wrap">
+            {calendarEvent.workers.map((worker, idx) => (
+              <Box key={worker} minWidth={400} flexGrow={1} flexBasis={0}>
+                <Card sx={{ padding: 1 }}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Chip
+                      icon={<FaceIcon />}
+                      label={worker}
+                      variant="outlined"
+                    />
+                    <IconButton onClick={deleteWorker(worker)}>
+                      <DeleteOutline />
+                    </IconButton>
+                  </Box>
+                  <Box>
+                    <Input
+                      {...register(`vacations.${idx}.value`, {
+                        validate: (value) => {
+                          if (!value) return true;
+                          const isValid = validator.vacations.validate(
+                            date,
+                            value
+                          );
+                          return isValid
+                            ? isValid
+                            : validator.vacations.message;
+                        },
+                      })}
+                      defaultValue=""
+                      placeholder={`${
+                        date.getMonth() + 1
+                      }월 휴가 입력 후 엔터 (ex. 1, 3-6)`}
+                      onKeyDown={saveVacations}
+                      id={worker}
+                      fullWidth
+                      error={!!errors?.vacations?.[idx]}
+                    />
+                    {!!errors?.vacations?.[idx] && (
+                      <FormHelperText>
+                        {errors?.vacations?.[idx]?.value?.message}
+                      </FormHelperText>
+                    )}
+                  </Box>
+                  <Box marginTop={1} gap={0.1} display="flex" flexWrap="wrap">
+                    <VacationList worker={worker} />
+                  </Box>
+                </Card>
+              </Box>
+            ))}
+          </Box>
         </Box>
-      </Box>
-      <Button type="submit" />
-    </form>
+        <Button type="submit" />
+      </form>
+      <Snackbar
+        open={isOpenSnacbar}
+        onClose={handleClose}
+        autoHideDuration={5000}
+        message="해당 근무자는 당직 열외자에서 참조 되고 있어 삭제할 수 없습니다."
+      />
+    </>
   );
 };

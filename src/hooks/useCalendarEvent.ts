@@ -15,11 +15,24 @@ export const useCalendarEvent = () => {
   const addEvent = (
     field: keyof CalendarEventStorage,
     value: any,
-    key?: string
+    option?: { key: string; childTargetField?: string }
   ) => {
     setCalendarEvent((prev) => {
       if (field === "workTimes") {
         const prevField = prev[field] ?? [];
+
+        if (option?.childTargetField && option?.key) {
+          const newField = prevField.map((_prevField) =>
+            _prevField.alias === option.childTargetField
+              ? { ..._prevField, outsider: [..._prevField.outsider, ...value] }
+              : _prevField
+          );
+          return {
+            ...prev,
+            [field]: newField,
+          };
+        }
+
         return {
           ...prev,
           [field]: [...prevField, value],
@@ -34,17 +47,17 @@ export const useCalendarEvent = () => {
         };
       }
 
-      if (field === "vacations" && key) {
+      if (field === "vacations" && option?.key) {
         const prevField = prev[field] ?? {};
         const newField = sortDateAscend([
-          ...new Set([...(prevField[key] ?? []), ...value]),
+          ...new Set([...(prevField[option.key] ?? []), ...value]),
         ]);
 
         return {
           ...prev,
           [field]: {
             ...prevField,
-            [key]: newField,
+            [option.key]: newField,
           },
         };
       }
@@ -66,6 +79,20 @@ export const useCalendarEvent = () => {
     setCalendarEvent((prev) => {
       if (field === "workTimes") {
         const prevField = prev[field];
+
+        if (option?.deleteTargetValue) {
+          const newField = prevField.map((_prevField) => {
+            if (_prevField.alias === target) {
+              const newChildField = _prevField.outsider.filter(
+                (_outsider) => _outsider !== option.deleteTargetValue
+              );
+              return { ..._prevField, outsider: newChildField };
+            }
+            return _prevField;
+          });
+          return { ...prev, [field]: newField };
+        }
+
         const newField = prevField.filter(
           (_prevField) => _prevField.alias !== target
         );

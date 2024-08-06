@@ -9,6 +9,7 @@ export type CalendarEventStorage = {
     alias: string;
     numOfWorkers: number;
     max: number;
+    outsider: string[];
   }[];
 };
 
@@ -21,6 +22,7 @@ export type CalendarEventForm = {
     alias: string;
     numOfWorkers: number;
     max: number;
+    outsider: string[];
   };
 };
 
@@ -39,5 +41,6 @@ export const defaultValuesForm: CalendarEventForm = {
     alias: "",
     numOfWorkers: 1,
     max: 0,
+    outsider: [],
   },
 };

@@ -6,7 +6,7 @@ export const SchedulerPage = () => {
     <Box
       padding={5}
       width="calc(100vw - 10)"
-      minWidth={650}
+      minWidth={400}
       display="flex"
       flexDirection="column"
       alignItems="center"

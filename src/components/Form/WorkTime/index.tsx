@@ -125,7 +125,7 @@ export const WorkTime = () => {
         </Box>
         <Box display="flex" flexDirection="column" gap={1}>
           <Box display="flex" gap={0.5} alignItems="center">
-            <InputLabel margin="dense">인당 최대 배정수</InputLabel>
+            <InputLabel margin="dense">인당 최대 횟수</InputLabel>
             <Tooltip title="해당 당직 시간에 당직 근무를 설 수 있는 인당 최대 횟수를 설정합니다. 설정하지 않으면 이 값은 무시됩니다.">
               <InfoOutlined sx={{ width: 16 }} />
             </Tooltip>
