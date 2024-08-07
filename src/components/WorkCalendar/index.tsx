@@ -12,9 +12,14 @@ import { isArray, isObject } from "@/utils/type";
 
 const localizer = dayjsLocalizer(dayjs);
 
-export const CalendarContext = createContext<{ date: Date; event: Event[] }>({
+export const CalendarContext = createContext<{
+  date: Date;
+  event: Event[];
+  handleEvent(event: Event[]): void;
+}>({
   date: new Date(),
   event: [],
+  handleEvent: () => {},
 });
 
 export const WorkCalendar = () => {
@@ -56,23 +61,27 @@ export const WorkCalendar = () => {
     }
   };
 
+  const handleEvent = (_event: Event[]) => {
+    setEvent(_event);
+  };
+
   useEffect(() => {
     fetchHolidays();
   }, [date.getMonth()]);
 
   return (
-    <CalendarContext.Provider value={{ date, event }}>
+    <CalendarContext.Provider value={{ date, event, handleEvent }}>
       <Box
         display="flex"
         flexDirection="column"
         gap={4}
         width="100%"
-        maxWidth={1024}
+        maxWidth={1920}
       >
         <Calendar<Event>
           localizer={localizer}
           events={event}
-          style={{ height: 600 }}
+          style={{ height: 870 }}
           components={{ toolbar: Toolbar }}
           date={date}
           onNavigate={handleChangeDate}
