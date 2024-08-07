@@ -20,6 +20,6 @@ export const isObject = <T extends any>(
   return getType(target) === "Object";
 };
 
-export const isArray = (target: any): target is [] => {
+export const isArray = <T extends any>(target: any): target is Array<T> => {
   return getType(target) === "Array";
 };

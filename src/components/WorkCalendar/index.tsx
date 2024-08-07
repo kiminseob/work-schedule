@@ -1,25 +1,41 @@
-import { Calendar, dayjsLocalizer } from "react-big-calendar";
+import { Calendar, type Event, dayjsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import dayjs from "dayjs";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Toolbar } from "./Toolbar";
 import { createContext, useEffect, useState } from "react";
 import { UserInputForm } from "./UserInput/UserInputForm";
 import { UserInputList } from "./UserInput/UserInputList";
 import { ScheduleGenerator } from "./ScheduleGenerator";
-import { getHolidays } from "@/api/public";
+import { Item, getHolidays } from "@/api/public";
+import { isArray, isObject } from "@/utils/type";
 
 const localizer = dayjsLocalizer(dayjs);
 
-export const CalendarContext = createContext<{ date: Date }>({
+export const CalendarContext = createContext<{ date: Date; event: Event[] }>({
   date: new Date(),
+  event: [],
 });
 
 export const WorkCalendar = () => {
   const [date, setDate] = useState(new Date());
+  const [event, setEvent] = useState<Event[]>([]);
 
   const handleChangeDate = (newDate: Date) => {
     setDate(newDate);
+  };
+
+  const transfromToEvent = (item: Item) => {
+    const year = String(item.locdate).slice(0, 4);
+    const month = String(item.locdate).slice(4, 6);
+    const day = String(item.locdate).slice(6, 8);
+
+    return {
+      title: <Typography variant="body2">{item.dateName}</Typography>,
+      start: new Date(`${year}-${month}-${day}`),
+      end: new Date(`${year}-${month}-${day}`),
+      allDay: true,
+    };
   };
 
   const fetchHolidays = async () => {
@@ -27,7 +43,17 @@ export const WorkCalendar = () => {
       solYear: date.getFullYear(),
       solMonth: date.getMonth() + 1,
     });
-    console.log(holidays);
+
+    if (!holidays) return;
+
+    if (isArray(holidays.item)) {
+      const _event: Event[] = holidays.item.map((v) => transfromToEvent(v));
+      setEvent(_event);
+    }
+    if (isObject(holidays.item)) {
+      const _event = transfromToEvent(holidays.item);
+      setEvent([_event]);
+    }
   };
 
   useEffect(() => {
@@ -35,7 +61,7 @@ export const WorkCalendar = () => {
   }, [date.getMonth()]);
 
   return (
-    <CalendarContext.Provider value={{ date }}>
+    <CalendarContext.Provider value={{ date, event }}>
       <Box
         display="flex"
         flexDirection="column"
@@ -43,9 +69,10 @@ export const WorkCalendar = () => {
         width="100%"
         maxWidth={1024}
       >
-        <Calendar
+        <Calendar<Event>
           localizer={localizer}
-          style={{ height: 500 }}
+          events={event}
+          style={{ height: 600 }}
           components={{ toolbar: Toolbar }}
           date={date}
           onNavigate={handleChangeDate}

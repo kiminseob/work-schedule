@@ -9,29 +9,27 @@ type Params = {
   ServiceKey?: string;
 };
 
-type Item = {
-  item: {
-    /**
-     * 종류
-     */
-    dateKind: "01";
-    /**
-     * 명칭 (ex. 삼일절, 추석)
-     */
-    dateName: string;
-    /**
-     * 공공기관 휴일여부
-     */
-    isHoliday: "Y";
-    /**
-     * 날짜 (ex. 20240916)
-     */
-    locdate: number;
-    /**
-     * 순번
-     */
-    seq: number;
-  }[];
+export type Item = {
+  /**
+   * 종류 (01: 공휴일)
+   */
+  dateKind: "01";
+  /**
+   * 명칭 (ex. 삼일절, 추석)
+   */
+  dateName: string;
+  /**
+   * 공공기관 휴일여부
+   */
+  isHoliday: "Y";
+  /**
+   * 날짜 (ex. 20240916)
+   */
+  locdate: number;
+  /**
+   * 순번
+   */
+  seq: number;
 };
 
 type Response = {
@@ -48,7 +46,7 @@ type Response = {
       resultMsg: string;
     };
     body: {
-      items: string | Item;
+      items: string | { item: Item[] | Item };
       numOfRows: 10;
       pageNo: 1;
       totalCount: 0;
@@ -68,8 +66,8 @@ export const getHolidays = async (params: Params) => {
 
   const result = await fetch(`${baseUrl}/getRestDeInfo?${query}`);
   const data: Response = await result.json();
-
-  return data.response.body.items;
+  const items = data.response.body.items;
+  return typeof items === "string" ? false : items;
 };
 
 const get2digitMonth = (month: number) => {
