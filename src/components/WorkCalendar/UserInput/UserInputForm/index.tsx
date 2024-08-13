@@ -37,13 +37,16 @@ export const UserInputForm = () => {
       addEvent("workers", workers);
     }
     if (selectedField === "workTimes") {
-      const { startTime, endTime, ...rest } = formValue.workTimes;
+      const { startTime, endTime, max, numOfWorkers, ...rest } =
+        formValue.workTimes;
       const sh = startTime?.hour();
       const sm = startTime?.minute();
       const eh = endTime?.hour();
       const em = endTime?.minute();
       const transformed = {
         ...rest,
+        max: Number(max),
+        numOfWorkers: Number(numOfWorkers),
         startTime: `${sh}:${sm}`,
         endTime: `${eh}:${em}`,
       };
