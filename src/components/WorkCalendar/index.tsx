@@ -9,22 +9,30 @@ import { UserInputList } from "./UserInput/UserInputList";
 import { ScheduleGenerator } from "./ScheduleGenerator";
 import { Item, getHolidays } from "@/api/public";
 import { isArray, isObject } from "@/utils/type";
+import { useCalendarEvent } from "@/hooks/useCalendarEvent";
+import React from "react";
 
 const localizer = dayjsLocalizer(dayjs);
 
 type CalendarContextType = {
   date: Date;
   event: Event[];
-  handleEvent(event: Event[] | ((prev: Event[]) => Event[])): void;
 };
 export const CalendarContext = createContext<CalendarContextType>({
   date: new Date(),
   event: [],
-  handleEvent: () => {},
 });
 
 export const WorkCalendar = () => {
+  const { calendarEvent } = useCalendarEvent();
   const [date, setDate] = useState(new Date());
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const transformedCalendarEvent = (
+    calendarEvent.event?.[`${year}-${month}`] ?? []
+  ).map(({ start, end, ...rest }) => {
+    return { ...rest, start: new Date(start!), end: new Date(end!) };
+  });
   const [event, setEvent] = useState<Event[]>([]);
 
   const handleChangeDate = (newDate: Date) => {
@@ -37,7 +45,11 @@ export const WorkCalendar = () => {
     const day = String(item.locdate).slice(6, 8);
 
     return {
-      title: <Typography variant="body2">{item.dateName}</Typography>,
+      title: (
+        <Typography variant="body2" sx={{ backgroundColor: "tomato" }}>
+          {item.dateName}
+        </Typography>
+      ),
       start: new Date(`${year}-${month}-${day}`),
       end: new Date(`${year}-${month}-${day}`),
       allDay: true,
@@ -62,18 +74,28 @@ export const WorkCalendar = () => {
     }
   };
 
-  const handleEvent: Pick<CalendarContextType, "handleEvent">["handleEvent"] = (
-    _event
-  ) => {
-    setEvent(_event);
-  };
-
   useEffect(() => {
     fetchHolidays();
   }, [date.getMonth()]);
 
+  const mergedEvent = [...transformedCalendarEvent, ...event].map(
+    ({ title, ...rest }) => ({
+      ...rest,
+      title: React.isValidElement(title) ? (
+        title
+      ) : (
+        <Typography variant="body2">{title}</Typography>
+      ),
+    })
+  );
+
+  const handleSelectEvent = (event: Event) => {
+    const title = event.title as React.ReactElement;
+    alert(title.props.children);
+  };
+
   return (
-    <CalendarContext.Provider value={{ date, event, handleEvent }}>
+    <CalendarContext.Provider value={{ date, event }}>
       <Box
         display="flex"
         flexDirection="column"
@@ -83,11 +105,12 @@ export const WorkCalendar = () => {
       >
         <Calendar<Event>
           localizer={localizer}
-          events={event}
+          events={mergedEvent}
           style={{ height: 870 }}
           components={{ toolbar: Toolbar }}
           date={date}
           onNavigate={handleChangeDate}
+          onSelectEvent={handleSelectEvent}
         />
         <ScheduleGenerator />
         <UserInputForm />

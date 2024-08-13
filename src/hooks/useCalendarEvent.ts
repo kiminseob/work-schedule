@@ -18,6 +18,29 @@ export const useCalendarEvent = () => {
     option?: { key: string; childTargetField?: string }
   ) => {
     setCalendarEvent((prev) => {
+      if (field === "assined" && option?.key) {
+        const prevField = prev[field] ?? {};
+
+        return {
+          ...prev,
+          [field]: {
+            ...prevField,
+            [option.key]: value,
+          },
+        };
+      }
+      if (field === "event" && option?.key) {
+        const prevField = prev[field] ?? {};
+
+        return {
+          ...prev,
+          [field]: {
+            ...prevField,
+            [option.key]: value,
+          },
+        };
+      }
+
       if (field === "workTimes") {
         const prevField = prev[field] ?? [];
 
@@ -77,6 +100,12 @@ export const useCalendarEvent = () => {
     option?: { deleteTargetValue: string }
   ) => {
     setCalendarEvent((prev) => {
+      if (field === "event") {
+        const prevField = prev[field];
+        delete prevField[target];
+        return { ...prev, [field]: prevField };
+      }
+
       if (field === "workTimes") {
         const prevField = prev[field];
 

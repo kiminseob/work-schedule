@@ -1,4 +1,5 @@
 import { Dayjs } from "dayjs";
+import type { Event } from "react-big-calendar";
 
 export type CalendarEventStorage = {
   workers: string[];
@@ -11,6 +12,14 @@ export type CalendarEventStorage = {
     max: number;
     outsider: string[];
   }[];
+  event: { [date: string]: Event[] };
+  assined: {
+    [date: string]: {
+      [worker: string]: {
+        workTimesCnt: { [_workTime: string]: number };
+      };
+    };
+  };
 };
 
 export type CalendarEventForm = {
@@ -30,6 +39,8 @@ export const defaultValuesStorage: CalendarEventStorage = {
   workers: [],
   vacations: {},
   workTimes: [],
+  event: {},
+  assined: {},
 };
 
 export const defaultValuesForm: CalendarEventForm = {

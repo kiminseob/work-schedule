@@ -107,15 +107,42 @@ export const WorkerList = () => {
               <Box key={worker} minWidth={400} flexGrow={1} flexBasis={0}>
                 <Card sx={{ padding: 1 }}>
                   <Box display="flex" justifyContent="space-between">
-                    <Chip
-                      icon={<FaceIcon />}
-                      label={worker}
-                      variant="outlined"
-                    />
+                    <Box display="flex" gap={1} alignItems="center">
+                      <Chip
+                        icon={<FaceIcon />}
+                        label={worker}
+                        variant="outlined"
+                      />
+                      {calendarEvent.assined?.[
+                        `${date.getFullYear()}-${date.getMonth() + 1}`
+                      ]?.[worker] && (
+                        <Box display="flex" alignItems="center" gap={0.5}>
+                          {Object.entries(
+                            calendarEvent.assined?.[
+                              `${date.getFullYear()}-${date.getMonth() + 1}`
+                            ]?.[worker]?.workTimesCnt
+                          ).map(([alias, num]) => (
+                            <Chip size="small" label={`${alias}: ${num}번`} />
+                          ))}
+                          <Chip
+                            size="small"
+                            color="secondary"
+                            label={`총 ${Object.entries(
+                              calendarEvent.assined?.[
+                                `${date.getFullYear()}-${date.getMonth() + 1}`
+                              ]?.[worker]?.workTimesCnt
+                            ).reduce((acc, [_, num]) => {
+                              return acc + num;
+                            }, 0)}번`}
+                          />
+                        </Box>
+                      )}
+                    </Box>
                     <IconButton onClick={deleteWorker(worker)}>
                       <DeleteOutline />
                     </IconButton>
                   </Box>
+
                   <Box>
                     <Input
                       {...register(`vacations.${idx}.value`, {
