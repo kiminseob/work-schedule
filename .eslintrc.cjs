@@ -15,7 +15,7 @@ module.exports = {
 			{ allowConstantExport: true },
 		],
 		'prefer-const': [
-			'error',
+			'all',
 			{
 				destructuring: 'all',
 			},
